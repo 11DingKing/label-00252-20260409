@@ -1,12 +1,23 @@
-import { ref, onMounted, onUnmounted, comput"vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useRealtimeStore } from "@/stores/realtime";
 
 export function useWebSocket() {
   const ws = ref(null);
   const realtimeStore = useRealtimeStore();
   let reconnectTimer = null;
-  let reconnectAttempts = 0;
+  const reconnectAttempts = ref(0);
   const maxReconnectAttempts = 10;
+  const isReconnecting = ref(false);
+
+  const connectionStatus = computed(() => {
+    if (realtimeStore.connected) {
+      return "connected";
+    } else if (isReconnecting.value) {
+      return "reconnecting";
+    } else {
+      return "disconnected";
+    }
+  });
 
   function connect() {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -19,7 +30,8 @@ export function useWebSocket() {
     ws.value.onopen = () => {
       console.log("WebSocket connected");
       realtimeStore.setConnected(true);
-      reconnectAttempts = 0;
+      isReconnecting.value = false;
+      reconnectAttempts.value = 0;
     };
 
     ws.value.onmessage = (event) => {
@@ -30,7 +42,6 @@ export function useWebSocket() {
         if (message.type === "state_update" && message.data) {
           realtimeStore.updateState(message.data);
         } else if (message.type === "heartbeat") {
-          // Respond to heartbeat with ping to keep connection alive
           if (ws.value && ws.value.readyState === WebSocket.OPEN) {
             ws.value.send(JSON.stringify({ type: "ping" }));
           }
@@ -52,15 +63,22 @@ export function useWebSocket() {
   }
 
   function scheduleReconnect() {
-    if (reconnectAttempts < maxReconnectAttempts) {
-      const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+    if (reconnectAttempts.value < maxReconnectAttempts) {
+      isReconnecting.value = true;
+      const delay = Math.min(
+        1000 * Math.pow(2, reconnectAttempts.value),
+        30000,
+      );
       console.log(
-        `Scheduling reconnect in ${delay}ms (attempt ${reconnectAttempts + 1})`,
+        `Scheduling reconnect in ${delay}ms (attempt ${reconnectAttempts.value + 1})`,
       );
       reconnectTimer = setTimeout(() => {
-        reconnectAttempts++;
+        reconnectAttempts.value++;
         connect();
       }, delay);
+    } else {
+      isReconnecting.value = false;
+      console.log("Max reconnect attempts reached");
     }
   }
 
@@ -68,9 +86,7 @@ export function useWebSocket() {
     if (reconnectTimer) {
       clearTimeout(reconnectTimer);
     }
-    if (ws.value) {
-      ws.value.close();
-    }
+    isReconnecting.value = false;
   }
 
   onMounted(() => {
@@ -85,24 +101,8 @@ export function useWebSocket() {
     ws,
     connect,
     disconnect,
-  };   ws.value.close()
-    }
-  }
-
-  onMounted(() => {
-    connect()
-  })
-
-  onUnmounted(() => {
-    disconnect()
-  })
-
-  return {
-    ws,
-    connect,
-    disconnect,
     connectionStatus,
     reconnectAttempts,
-    isReconnecting
-  }
+    isReconnecting,
+  };
 }
