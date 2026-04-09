@@ -1,0 +1,1014 @@
+// ============================================
+// 工业园区微网控制系统 - 高级UI样式
+// 参考: Tesla Powerwall, Schneider EcoStruxure
+// ============================================
+
+// 色彩系统 - 深色科技风格
+$primary-color: #00D4AA;
+$primary-light: #33DDBB;
+$primary-dark: #00B894;
+$secondary-color: #6C5CE7;
+
+$success-color: #00B894;
+$warning-color: #FDCB6E;
+$danger-color: #FF7675;
+$info-color: #74B9FF;
+
+// 深色背景系统
+$bg-dark-1: #0A0E17;
+$bg-dark-2: #111827;
+$bg-dark-3: #1F2937;
+$bg-card: #1E293B;
+$bg-card-hover: #273449;
+
+// 文字颜色
+$text-primary: #F8FAFC;
+$text-secondary: #94A3B8;
+$text-muted: #64748B;
+
+// 边框和阴影
+$border-color: rgba(255, 255, 255, 0.1);
+$glow-primary: 0 0 20px rgba(0, 212, 170, 0.3);
+$glow-success: 0 0 15px rgba(0, 184, 148, 0.4);
+$shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+
+// 间距系统
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// 圆角
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 24px;
+
+// 动画
+$transition-fast: 0.15s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// ============================================
+// 全局重置
+// ============================================
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  color: $text-primary;
+  background: $bg-dark-1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ============================================
+// 布局系统
+// ============================================
+.layout-container {
+  height: 100vh;
+  display: flex;
+  background: $bg-dark-1;
+}
+
+.layout-aside {
+  width: 260px;
+  background: linear-gradient(180deg, $bg-dark-2 0%, $bg-dark-1 100%);
+  border-right: 1px solid $border-color;
+  transition: width $transition-normal;
+  display: flex;
+  flex-direction: column;
+  
+  &.collapsed {
+    width: 72px;
+    
+    .logo span { display: none; }
+    .el-menu-item span,
+    .el-sub-menu__title span { display: none; }
+  }
+}
+
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: $bg-dark-1;
+}
+
+.layout-header {
+  height: 64px;
+  background: rgba($bg-dark-2, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $spacing-lg;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.layout-content {
+  flex: 1;
+  padding: $spacing-lg;
+  overflow-y: auto;
+  background: linear-gradient(135deg, $bg-dark-1 0%, rgba($bg-dark-2, 0.5) 100%);
+}
+
+// ============================================
+// Logo 样式
+// ============================================
+.logo {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 $spacing-md;
+  border-bottom: 1px solid $border-color;
+  
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: $glow-primary;
+  }
+  
+  span {
+    font-size: 16px;
+    font-weight: 700;
+    background: linear-gradient(90deg, $text-primary, $primary-color);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+  }
+}
+
+// ============================================
+// 侧边栏菜单
+// ============================================
+.el-menu {
+  background: transparent !important;
+  border-right: none !important;
+  padding: $spacing-sm;
+  
+  .el-menu-item,
+  .el-sub-menu__title {
+    height: 48px;
+    line-height: 48px;
+    margin: 4px 0;
+    border-radius: $radius-md;
+    color: $text-secondary !important;
+    transition: all $transition-normal;
+    
+    &:hover {
+      background: rgba($primary-color, 0.1) !important;
+      color: $primary-color !important;
+    }
+    
+    .el-icon {
+      font-size: 20px;
+      margin-right: 12px;
+    }
+  }
+  
+  .el-menu-item.is-active {
+    background: linear-gradient(90deg, rgba($primary-color, 0.2), transparent) !important;
+    color: $primary-color !important;
+    border-left: 3px solid $primary-color;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 24px;
+      background: $primary-color;
+      border-radius: 0 2px 2px 0;
+      box-shadow: $glow-primary;
+    }
+  }
+  
+  .el-sub-menu .el-menu-item {
+    padding-left: 56px !important;
+    height: 44px;
+    line-height: 44px;
+  }
+}
+
+// ============================================
+// 卡片组件
+// ============================================
+.card {
+  background: $bg-card;
+  border-radius: $radius-lg;
+  border: 1px solid $border-color;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+  transition: all $transition-normal;
+  
+  &:hover {
+    border-color: rgba($primary-color, 0.3);
+    box-shadow: $shadow-card, 0 0 30px rgba($primary-color, 0.1);
+  }
+  
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid $border-color;
+    
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: $text-primary;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      &::before {
+        content: '';
+        width: 4px;
+        height: 16px;
+        background: linear-gradient(180deg, $primary-color, $secondary-color);
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+// 玻璃态卡片
+.glass-card {
+  background: rgba($bg-card, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+}
+
+// ============================================
+// 统计卡片 - 渐变风格
+// ============================================
+.stat-card {
+  position: relative;
+  padding: $spacing-lg;
+  border-radius: $radius-lg;
+  background: linear-gradient(135deg, rgba($primary-color, 0.15), rgba($primary-color, 0.05));
+  border: 1px solid rgba($primary-color, 0.2);
+  overflow: hidden;
+  transition: all $transition-normal;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $primary-color, transparent);
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba($primary-color, 0.2);
+  }
+  
+  .stat-icon {
+    position: absolute;
+    right: $spacing-lg;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 64px;
+    opacity: 0.1;
+    color: $primary-color;
+  }
+  
+  .stat-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .stat-label {
+    font-size: 13px;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 12px;
+    
+    &.up { color: $success-color; }
+    &.down { color: $danger-color; }
+  }
+  
+  // 变体
+  &.success {
+    background: linear-gradient(135deg, rgba($success-color, 0.15), rgba($success-color, 0.05));
+    border-color: rgba($success-color, 0.2);
+    &::before { background: linear-gradient(90deg, $success-color, transparent); }
+    .stat-icon { color: $success-color; }
+  }
+  
+  &.warning {
+    background: linear-gradient(135deg, rgba($warning-color, 0.15), rgba($warning-color, 0.05));
+    border-color: rgba($warning-color, 0.2);
+    &::before { background: linear-gradient(90deg, $warning-color, transparent); }
+    .stat-icon { color: $warning-color; }
+  }
+  
+  &.danger {
+    background: linear-gradient(135deg, rgba($danger-color, 0.15), rgba($danger-color, 0.05));
+    border-color: rgba($danger-color, 0.2);
+    &::before { background: linear-gradient(90deg, $danger-color, transparent); }
+    .stat-icon { color: $danger-color; }
+  }
+  
+  &.info {
+    background: linear-gradient(135deg, rgba($info-color, 0.15), rgba($info-color, 0.05));
+    border-color: rgba($info-color, 0.2);
+    &::before { background: linear-gradient(90deg, $info-color, transparent); }
+    .stat-icon { color: $info-color; }
+  }
+}
+
+// ============================================
+// 拓扑图容器
+// ============================================
+.topology-container {
+  background: linear-gradient(135deg, $bg-dark-2, $bg-dark-1);
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  min-height: 500px;
+  position: relative;
+  overflow: hidden;
+  
+  // 网格背景
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(rgba($primary-color, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba($primary-color, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+}
+
+.topology-node {
+  position: absolute;
+  background: rgba($bg-card, 0.9);
+  backdrop-filter: blur(10px);
+  border: 2px solid $border-color;
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-lg;
+  color: $text-primary;
+  text-align: center;
+  cursor: pointer;
+  transition: all $transition-normal;
+  min-width: 120px;
+  
+  &:hover {
+    transform: scale(1.05);
+    border-color: $primary-color;
+    box-shadow: $glow-primary;
+  }
+  
+  &.active {
+    border-color: $success-color;
+    box-shadow: $glow-success;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 12px;
+      height: 12px;
+      background: $success-color;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+  }
+  
+  &.warning {
+    border-color: $warning-color;
+    box-shadow: 0 0 15px rgba($warning-color, 0.3);
+  }
+  
+  &.error {
+    border-color: $danger-color;
+    box-shadow: 0 0 15px rgba($danger-color, 0.3);
+    animation: shake 0.5s ease-in-out;
+  }
+  
+  .node-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: $primary-color;
+  }
+  
+  .node-name {
+    font-size: 12px;
+    color: $text-secondary;
+    margin-bottom: 4px;
+  }
+  
+  .node-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: $text-primary;
+  }
+  
+  .node-status {
+    font-size: 10px;
+    color: $text-muted;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// ============================================
+// 仪表盘组件
+// ============================================
+.gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md;
+  
+  .gauge-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: $text-primary;
+    margin-top: -20px;
+  }
+  
+  .gauge-label {
+    font-size: 12px;
+    color: $text-secondary;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+}
+
+// ============================================
+// 状态指示器
+// ============================================
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse-dot 2s infinite;
+  }
+  
+  &.online {
+    background: rgba($success-color, 0.1);
+    color: $success-color;
+    &::before { background: $success-color; }
+  }
+  
+  &.offline {
+    background: rgba($text-muted, 0.1);
+    color: $text-muted;
+    &::before { background: $text-muted; animation: none; }
+  }
+  
+  &.warning {
+    background: rgba($warning-color, 0.1);
+    color: $warning-color;
+    &::before { background: $warning-color; }
+  }
+  
+  &.error {
+    background: rgba($danger-color, 0.1);
+    color: $danger-color;
+    &::before { background: $danger-color; }
+  }
+}
+
+// ============================================
+// 进度条美化
+// ============================================
+.el-progress {
+  .el-progress-bar__outer {
+    background: rgba($text-muted, 0.2);
+    border-radius: 10px;
+  }
+  
+  .el-progress-bar__inner {
+    border-radius: 10px;
+    background: linear-gradient(90deg, $primary-color, $primary-light);
+  }
+}
+
+// ============================================
+// Element Plus 深色主题覆盖
+// ============================================
+.el-button {
+  border-radius: $radius-sm;
+  font-weight: 500;
+  transition: all $transition-normal;
+  
+  &--primary {
+    background: linear-gradient(135deg, $primary-color, $primary-dark);
+    border: none;
+    
+    &:hover {
+      background: linear-gradient(135deg, $primary-light, $primary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba($primary-color, 0.4);
+    }
+  }
+}
+
+.el-input__wrapper {
+  background: $bg-dark-3 !important;
+  border: 1px solid $border-color !important;
+  border-radius: $radius-sm !important;
+  box-shadow: none !important;
+  
+  &:hover, &.is-focus {
+    border-color: $primary-color !important;
+  }
+  
+  .el-input__inner {
+    color: $text-primary !important;
+    
+    &::placeholder {
+      color: $text-muted !important;
+    }
+  }
+}
+
+.el-select__wrapper {
+  background: $bg-dark-3 !important;
+  border: 1px solid $border-color !important;
+  border-radius: $radius-sm !important;
+  box-shadow: none !important;
+}
+
+.el-table {
+  background: transparent !important;
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: rgba($bg-dark-3, 0.8);
+  --el-table-row-hover-bg-color: rgba($primary-color, 0.08);
+  --el-table-border-color: $border-color;
+  --el-table-text-color: $text-primary;
+  --el-table-header-text-color: $text-secondary;
+  
+  // 表头样式
+  th.el-table__cell {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 14px 12px;
+    background: rgba($bg-dark-3, 0.8) !important;
+    border-bottom: 2px solid rgba($primary-color, 0.3) !important;
+  }
+  
+  // 表格行样式
+  .el-table__row {
+    transition: all $transition-fast;
+    
+    td.el-table__cell {
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba($border-color, 0.5);
+    }
+    
+    &:hover {
+      td.el-table__cell {
+        background: rgba($primary-color, 0.08) !important;
+      }
+    }
+  }
+  
+  // 斑马纹
+  &.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+    background: rgba($bg-dark-3, 0.3);
+  }
+  
+  // 数值列样式
+  .cell {
+    .numeric-value {
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      font-variant-numeric: tabular-nums;
+      color: $text-primary;
+    }
+  }
+  
+  // 操作按钮样式
+  .el-button.is-link {
+    padding: 4px 8px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    
+    &:hover, &:focus, &:active {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      outline: none !important;
+    }
+    
+    &.el-button--primary {
+      color: $primary-color !important;
+      &:hover, &:focus, &:active {
+        background: transparent !important;
+        color: $primary-color !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+    
+    &.el-button--danger {
+      color: $danger-color !important;
+      &:hover, &:focus, &:active {
+        background: transparent !important;
+        color: $danger-color !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+    
+    &.el-button--warning {
+      color: $warning-color !important;
+      &:hover, &:focus, &:active {
+        background: transparent !important;
+        color: $warning-color !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+    
+    &.el-button--success {
+      color: $success-color !important;
+      &:hover, &:focus, &:active {
+        background: transparent !important;
+        color: $success-color !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+  }
+  
+  // 空状态
+  .el-table__empty-block {
+    background: transparent;
+    
+    .el-table__empty-text {
+      color: $text-muted;
+    }
+  }
+}
+
+// 表格容器增强
+.enhanced-table {
+  .el-table {
+    border-radius: $radius-md;
+    overflow: hidden;
+    
+    &::before {
+      display: none;
+    }
+  }
+  
+  // 固定高度可滚动
+  &.scrollable {
+    .el-table {
+      height: 400px;
+      
+      .el-table__body-wrapper {
+        overflow-y: auto;
+      }
+    }
+  }
+  
+  &.scrollable-sm {
+    .el-table {
+      height: 300px;
+    }
+  }
+  
+  &.scrollable-lg {
+    .el-table {
+      height: 500px;
+    }
+  }
+}
+
+// 分页器样式
+.el-pagination {
+  --el-pagination-bg-color: transparent;
+  --el-pagination-text-color: $text-secondary;
+  --el-pagination-button-bg-color: rgba($bg-dark-3, 0.5);
+  --el-pagination-hover-color: $primary-color;
+  
+  .el-pager li {
+    background: rgba($bg-dark-3, 0.5);
+    color: $text-secondary;
+    border-radius: $radius-sm;
+    margin: 0 2px;
+    
+    &:hover {
+      color: $primary-color;
+    }
+    
+    &.is-active {
+      background: $primary-color;
+      color: $bg-dark-1;
+    }
+  }
+  
+  .btn-prev, .btn-next {
+    background: rgba($bg-dark-3, 0.5);
+    color: $text-secondary;
+    border-radius: $radius-sm;
+    
+    &:hover {
+      color: $primary-color;
+    }
+  }
+  
+  .el-pagination__total {
+    color: $text-secondary;
+  }
+}
+
+.el-tag {
+  border-radius: 6px;
+  border: none;
+  font-weight: 500;
+  
+  &--success {
+    background: rgba($success-color, 0.15);
+    color: $success-color;
+  }
+  
+  &--warning {
+    background: rgba($warning-color, 0.15);
+    color: $warning-color;
+  }
+  
+  &--danger {
+    background: rgba($danger-color, 0.15);
+    color: $danger-color;
+  }
+  
+  &--info {
+    background: rgba($info-color, 0.15);
+    color: $info-color;
+  }
+}
+
+.el-dialog {
+  background: $bg-card !important;
+  border-radius: $radius-lg !important;
+  border: 1px solid $border-color;
+  
+  .el-dialog__header {
+    border-bottom: 1px solid $border-color;
+    padding: $spacing-lg;
+  }
+  
+  .el-dialog__title {
+    color: $text-primary;
+    font-weight: 600;
+  }
+  
+  .el-dialog__body {
+    padding: $spacing-lg;
+    color: $text-primary;
+  }
+}
+
+.el-form-item__label {
+  color: $text-secondary !important;
+}
+
+.el-descriptions {
+  --el-descriptions-item-bordered-label-background: rgba($bg-dark-3, 0.5);
+  
+  .el-descriptions__label {
+    color: $text-secondary;
+  }
+  
+  .el-descriptions__content {
+    color: $text-primary;
+  }
+}
+
+.el-statistic {
+  .el-statistic__head {
+    color: $text-secondary;
+    font-size: 12px;
+    text-transform: uppercase;
+  }
+  
+  .el-statistic__content {
+    color: $text-primary;
+    
+    .el-statistic__number {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
+// ============================================
+// 滚动条美化
+// ============================================
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $bg-dark-2;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $bg-dark-3;
+  border-radius: 4px;
+  
+  &:hover {
+    background: rgba($primary-color, 0.5);
+  }
+}
+
+// ============================================
+// 动画效果
+// ============================================
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba($primary-color, 0.5); }
+  50% { box-shadow: 0 0 20px rgba($primary-color, 0.8); }
+}
+
+.fade-enter-active {
+  animation: fadeIn 0.3s ease;
+}
+
+// ============================================
+// 响应式设计
+// ============================================
+@media (max-width: 1200px) {
+  .stat-card .stat-value {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .layout-aside {
+    position: fixed;
+    z-index: 1000;
+    height: 100%;
+    transform: translateX(-100%);
+    
+    &.show {
+      transform: translateX(0);
+    }
+  }
+  
+  .layout-content {
+    padding: $spacing-md;
+  }
+  
+  .stat-card {
+    padding: $spacing-md;
+    
+    .stat-value {
+      font-size: 24px;
+    }
+  }
+}
+
+// ============================================
+// 工具类
+// ============================================
+.text-primary { color: $text-primary; }
+.text-secondary { color: $text-secondary; }
+.text-muted { color: $text-muted; }
+.text-success { color: $success-color; }
+.text-warning { color: $warning-color; }
+.text-danger { color: $danger-color; }
+
+.bg-success { background: rgba($success-color, 0.1); }
+.bg-warning { background: rgba($warning-color, 0.1); }
+.bg-danger { background: rgba($danger-color, 0.1); }
+
+.glow-primary { box-shadow: $glow-primary; }
+.glow-success { box-shadow: $glow-success; }
+
+.mb-0 { margin-bottom: 0 !important; }
+.mb-sm { margin-bottom: $spacing-sm; }
+.mb-md { margin-bottom: $spacing-md; }
+.mb-lg { margin-bottom: $spacing-lg; }
+
+// ============================================
+// 表格内容样式增强
+// ============================================
+.numeric-value {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.unit {
+  font-size: 12px;
+  color: $text-muted;
+  margin-left: 4px;
+}
+
+.time-value {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.ip-value {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-variant-numeric: tabular-nums;
+  color: $text-secondary;
+}
+
+.alarm-code {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-weight: 600;
+  color: $warning-color;
+}
+
+.module-text {
+  color: $text-secondary;
+}
+
+.status-text {
+  font-size: 13px;
+  color: $text-secondary;
+}
