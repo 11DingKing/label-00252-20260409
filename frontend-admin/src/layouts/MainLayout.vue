@@ -1,5 +1,33 @@
 <template>
   <div class="layout-container">
+    <div
+      v-if="connectionStatus !== 'connected'"
+      class="connection-status-bar"
+      :class="connectionStatus"
+    >
+      <el-icon
+        v-if="connectionStatus === 'reconnecting'"
+        class="status-icon spinning"
+        ><Loading
+      /></el-icon>
+      <el-icon v-else class="status-icon"><Warning /></el-icon>
+      <span class="status-text">
+        {{
+          connectionStatus === "reconnecting"
+            ? `WebSocket 连接已断开，正在尝试重连... (第 ${reconnectAttempts + 1} 次)`
+            : "WebSocket 连接已断开，请检查网络连接"
+        }}
+      </span>
+      <el-button
+        v-if="connectionStatus === 'disconnected'"
+        type="primary"
+        size="small"
+        @click="handleManualReconnect"
+      >
+        手动重连
+      </el-button>
+    </div>
+
     <aside class="layout-aside" :class="{ collapsed: isCollapsed }">
       <div class="logo">
         <el-icon :size="28"><Cpu /></el-icon>
@@ -61,19 +89,28 @@
         </el-sub-menu>
       </el-menu>
     </aside>
-    
+
     <main class="layout-main">
       <header class="layout-header">
         <div class="header-left">
-          <el-button :icon="isCollapsed ? 'Expand' : 'Fold'" text @click="toggleCollapse" />
+          <el-button
+            :icon="isCollapsed ? 'Expand' : 'Fold'"
+            text
+            @click="toggleCollapse"
+          />
           <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item v-if="$route.meta.title">{{ $route.meta.title }}</el-breadcrumb-item>
+            <el-breadcrumb-item v-if="$route.meta.title">{{
+              $route.meta.title
+            }}</el-breadcrumb-item>
           </el-breadcrumb>
         </div>
         <div class="header-right">
-          <el-tag :type="realtimeStore.connected ? 'success' : 'danger'" size="small">
-            {{ realtimeStore.connected ? '已连接' : '未连接' }}
+          <el-tag
+            :type="realtimeStore.connected ? 'success' : 'danger'"
+            size="small"
+          >
+            {{ realtimeStore.connected ? "已连接" : "未连接" }}
           </el-tag>
           <el-dropdown @command="handleCommand">
             <span class="user-dropdown">
@@ -88,7 +125,7 @@
           </el-dropdown>
         </div>
       </header>
-      
+
       <div class="layout-content">
         <router-view />
       </div>
@@ -97,51 +134,120 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessageBox } from 'element-plus'
-import { UserFilled } from '@element-plus/icons-vue'
-import { useUserStore } from '@/stores/user'
-import { useRealtimeStore } from '@/stores/realtime'
-import { useWebSocket } from '@/composables/useWebSocket'
-import api from '@/api'
+import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessageBox } from "element-plus";
+import { UserFilled, Loading, Warning } from "@element-plus/icons-vue";
+import { useUserStore } from "@/stores/user";
+import { useRealtimeStore } from "@/stores/realtime";
+import { useWebSocket } from "@/composables/useWebSocket";
+import api from "@/api";
 
-const router = useRouter()
-const userStore = useUserStore()
-const realtimeStore = useRealtimeStore()
-const { connect } = useWebSocket()
+const router = useRouter();
+const userStore = useUserStore();
+const realtimeStore = useRealtimeStore();
+const { connect, connectionStatus, reconnectAttempts } = useWebSocket();
 
-const isCollapsed = ref(false)
+const isCollapsed = ref(false);
 
 function toggleCollapse() {
-  isCollapsed.value = !isCollapsed.value
+  isCollapsed.value = !isCollapsed.value;
 }
 
 function handleCommand(command) {
-  if (command === 'logout') {
-    ElMessageBox.confirm('确定要退出登录吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+  if (command === "logout") {
+    ElMessageBox.confirm("确定要退出登录吗？", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
     }).then(() => {
-      userStore.logout()
-      router.push('/login')
-    })
+      userStore.logout();
+      router.push("/login");
+    });
   }
+}
+
+function handleManualReconnect() {
+  connect();
 }
 
 onMounted(() => {
   // WebSocket connection handled by useWebSocket
-})
+});
 </script>
 
 <style lang="scss" scoped>
-$primary-color: #00D4AA;
-$bg-dark-1: #0A0E17;
+$primary-color: #00d4aa;
+$bg-dark-1: #0a0e17;
 $bg-dark-2: #111827;
 $border-color: rgba(255, 255, 255, 0.1);
-$text-primary: #F8FAFC;
-$text-secondary: #94A3B8;
+$text-primary: #f8fafc;
+$text-secondary: #94a3b8;
+
+.connection-status-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  animation: slideDown 0.3s ease;
+
+  .status-icon {
+    font-size: 18px;
+
+    &.spinning {
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  .status-text {
+    font-weight: 500;
+  }
+
+  &.reconnecting {
+    background: linear-gradient(
+      90deg,
+      rgba(253, 203, 110, 0.95),
+      rgba(243, 156, 18, 0.95)
+    );
+    color: #1a1a2e;
+
+    :deep(.el-button) {
+      background: rgba(26, 26, 46, 0.8);
+      border: none;
+      color: #fdcb6e;
+
+      &:hover {
+        background: rgba(26, 26, 46, 1);
+      }
+    }
+  }
+
+  &.disconnected {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 118, 117, 0.95),
+      rgba(214, 48, 49, 0.95)
+    );
+    color: #f8fafc;
+
+    :deep(.el-button) {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #f8fafc;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+}
 
 .layout-container {
   height: 100vh;
@@ -156,11 +262,13 @@ $text-secondary: #94A3B8;
   transition: width 0.3s ease;
   display: flex;
   flex-direction: column;
-  
+
   &.collapsed {
     width: 72px;
-    
-    .logo span { display: none; }
+
+    .logo span {
+      display: none;
+    }
   }
 }
 
@@ -172,11 +280,11 @@ $text-secondary: #94A3B8;
   gap: 12px;
   padding: 0 16px;
   border-bottom: 1px solid $border-color;
-  
+
   :deep(.el-icon) {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, $primary-color, #6C5CE7);
+    background: linear-gradient(135deg, $primary-color, #6c5ce7);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -184,7 +292,7 @@ $text-secondary: #94A3B8;
     color: white;
     box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
   }
-  
+
   span {
     font-size: 16px;
     font-weight: 700;
@@ -222,25 +330,25 @@ $text-secondary: #94A3B8;
   display: flex;
   align-items: center;
   gap: 16px;
-  
+
   :deep(.el-button) {
     color: $text-secondary;
-    
+
     &:hover {
       color: $primary-color;
     }
   }
-  
+
   :deep(.el-breadcrumb) {
     .el-breadcrumb__item {
       .el-breadcrumb__inner {
         color: $text-secondary;
-        
+
         &:hover {
           color: $primary-color;
         }
       }
-      
+
       .el-breadcrumb__separator {
         color: rgba(255, 255, 255, 0.3);
       }
@@ -252,27 +360,27 @@ $text-secondary: #94A3B8;
   display: flex;
   align-items: center;
   gap: 16px;
-  
+
   :deep(.el-button) {
     color: $text-secondary;
-    
+
     &:hover {
       color: $primary-color;
     }
   }
-  
+
   :deep(.el-tag) {
     border: none;
     font-weight: 500;
-    
+
     &.el-tag--success {
       background: rgba(0, 184, 148, 0.15);
-      color: #00B894;
+      color: #00b894;
     }
-    
+
     &.el-tag--danger {
       background: rgba(255, 118, 117, 0.15);
-      color: #FF7675;
+      color: #ff7675;
     }
   }
 }
@@ -285,15 +393,15 @@ $text-secondary: #94A3B8;
   padding: 6px 12px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.05);
   }
-  
+
   :deep(.el-avatar) {
-    background: linear-gradient(135deg, $primary-color, #6C5CE7);
+    background: linear-gradient(135deg, $primary-color, #6c5ce7);
   }
-  
+
   span {
     color: $text-secondary;
     font-size: 14px;
@@ -304,14 +412,18 @@ $text-secondary: #94A3B8;
   flex: 1;
   padding: 24px;
   overflow-y: auto;
-  background: linear-gradient(135deg, $bg-dark-1 0%, rgba($bg-dark-2, 0.5) 100%);
+  background: linear-gradient(
+    135deg,
+    $bg-dark-1 0%,
+    rgba($bg-dark-2, 0.5) 100%
+  );
 }
 
 :deep(.el-menu) {
   background: transparent !important;
   border-right: none !important;
   padding: 8px;
-  
+
   .el-menu-item,
   .el-sub-menu__title {
     height: 48px;
@@ -320,25 +432,29 @@ $text-secondary: #94A3B8;
     border-radius: 12px;
     color: $text-secondary !important;
     transition: all 0.3s ease;
-    
+
     &:hover {
       background: rgba($primary-color, 0.1) !important;
       color: $primary-color !important;
     }
-    
+
     .el-icon {
       font-size: 20px;
       margin-right: 12px;
     }
   }
-  
+
   .el-menu-item.is-active {
-    background: linear-gradient(90deg, rgba($primary-color, 0.2), transparent) !important;
+    background: linear-gradient(
+      90deg,
+      rgba($primary-color, 0.2),
+      transparent
+    ) !important;
     color: $primary-color !important;
     position: relative;
-    
+
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       left: 0;
       top: 50%;
@@ -350,7 +466,7 @@ $text-secondary: #94A3B8;
       box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
     }
   }
-  
+
   .el-sub-menu {
     .el-menu-item {
       padding-left: 56px !important;
@@ -360,18 +476,38 @@ $text-secondary: #94A3B8;
   }
 }
 
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
   .layout-aside {
     position: fixed;
     z-index: 1000;
     height: 100%;
     transform: translateX(-100%);
-    
+
     &.show {
       transform: translateX(0);
     }
   }
-  
+
   .layout-content {
     padding: 16px;
   }

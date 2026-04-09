@@ -97,3 +97,45 @@ async def get_config_history(
         page_size=page_size,
         total_pages=(total + page_size - 1) // page_size
     )
+
+
+@router.get("/thresholds")
+async def get_thresholds(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get voltage and frequency thresholds for grid status monitoring."""
+    config_keys = ["voltage_nominal", "frequency_nominal", "voltage_tolerance", "frequency_tolerance"]
+    configs = db.query(SystemConfig).filter(SystemConfig.config_key.in_(config_keys)).all()
+    
+    config_dict = {c.config_key: c for c in configs}
+    
+    def get_config_value(key, default):
+        if key in config_dict:
+            config = config_dict[key]
+            if config.config_type == "float":
+                return float(config.config_value)
+            elif config.config_type == "int":
+                return int(config.config_value)
+            return config.config_value
+        return default
+    
+    voltage_nominal = get_config_value("voltage_nominal", 380.0)
+    frequency_nominal = get_config_value("frequency_nominal", 50.0)
+    voltage_tolerance = get_config_value("voltage_tolerance", 0.05)
+    frequency_tolerance = get_config_value("frequency_tolerance", 0.004)
+    
+    return ResponseModel(data={
+        "voltage": {
+            "nominal": voltage_nominal,
+            "tolerance": voltage_tolerance,
+            "min": voltage_nominal * (1 - voltage_tolerance),
+            "max": voltage_nominal * (1 + voltage_tolerance)
+        },
+        "frequency": {
+            "nominal": frequency_nominal,
+            "tolerance": frequency_tolerance,
+            "min": frequency_nominal - frequency_tolerance,
+            "max": frequency_nominal + frequency_tolerance
+        }
+    })
